@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import styled from "styled-components";
-import { Layout } from "../components/Layout";
-// import Image from "next/image";
-//import styles from '../styles/Home.module.css'
+import { Layout } from "../../components/Layout";
+
+import { Auth } from "aws-amplify";
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -19,11 +19,18 @@ export default function Home() {
     setPassword(e.target.value);
   };
 
-  const handleLogin = async (
+  const handleSignUp = async (
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
-    console.log("aaaa");
-    e.preventDefault();
+    e.preventDefault()
+    try {
+      await Auth.signUp({
+        username: email.trim(),
+        password: password.trim(),
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -35,7 +42,7 @@ export default function Home() {
       </Head>
       <Layout userName={userName}>
         <main>
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleSignUp}>
             <input type="text" value={email} onChange={handleChangeEmail} />
             <input
               type="text"
