@@ -1,0 +1,11 @@
+{
+  "AppSyncApiName": "nexttodo",
+  "DynamoDBBillingMode": "PAY_PER_REQUEST",
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authnexttodob6edbbd5",
+      "Outputs.UserPoolId"
+    ]
+  }
+}
