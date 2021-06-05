@@ -49,7 +49,7 @@ export default function Home() {
               value={password}
               onChange={handleChangePassword}
             />
-            <button type="submit">ログイン</button>
+            <button type="submit">登録</button>
           </form>
         </main>
       </Layout>
