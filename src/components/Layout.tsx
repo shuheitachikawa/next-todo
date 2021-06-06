@@ -1,16 +1,21 @@
 import React from "react";
 import type { ReactNode, FC } from "react";
 import styled from "styled-components";
+import Color from "../const/colors"
 
 const Header = styled.header`
-  background-color: #d0f0ff;
-  padding: 16px;
+  background-color: ${Color.PRIMARY};
 `;
 
 const HeaderContainer = styled.div`
   display: flex;
   align-items: center;
+  padding: 16px 24px;
 `;
+
+const Container = styled.div`
+  padding: 24px;
+`
 
 const HeaderTitle = styled.h1`
   font-size: 1rem;
@@ -28,11 +33,11 @@ export const Layout: FC<Props> = (props) => {
     <div className="">
       <Header>
         <HeaderContainer className="container">
-          <HeaderTitle className="h1">アプリ名</HeaderTitle>
+          <HeaderTitle className="h1">MyApp</HeaderTitle>
           <div className="">{props.userName}</div>
         </HeaderContainer>
       </Header>
-      <div className="">{props.children}</div>
+      <Container className="">{props.children}</Container>
     </div>
   );
 };

@@ -1,51 +1,128 @@
 import React, { useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
-import styled from "styled-components";
-import { Layout } from "../components/Layout";
+import { NextPage } from "next";
 // import Image from "next/image";
 //import styles from '../styles/Home.module.css'
-import { Auth } from "aws-amplify";
 
-export default function Home() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isSignIn, setIsSignIn] = useState(false);
-  const userName = "tachi";
+// const
+import Color from "../const/colors";
 
-  const handleChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
+// styled-components
+import styled from "styled-components";
+
+// components
+import { Layout } from "../components/Layout";
+import { TextField } from "../components/TextField";
+import { ButtonMain } from "../components/ButtonMain";
+
+// Amplify
+import { Auth, withSSRContext } from "aws-amplify";
+
+// Formik
+import { Formik, FormikProps } from "formik";
+
+interface LoginInfo {
+  email: string;
+  password: string;
+}
+
+export async function getServerSideProps(context: any) {
+  const { Auth } = withSSRContext({ req: context.req });
+  const userInfo = await Auth.currentUserInfo();
+  return {
+    props: {
+      userInfo,
+    },
   };
+}
 
-  const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
+const Item = styled.div`
+  background-color: ${Color.PRIMARY};
+  padding: 16px;
+  margin-bottom: 16px;
+  cursor: pointer;
+`;
 
-  const handleLogin = async (
-    e: React.FormEvent<HTMLFormElement>
-  ): Promise<void> => {
-    e.preventDefault();
+const LogoutButton = styled.button`
+  display: block;
+  background-color: ${Color.PRIMARY};
+  border: none;
+  width: 100%;
+  border-radius: 20px;
+  padding: 8px 0;
+  font-weight: bold;
+  cursor: pointer;
+`;
+
+interface Props {
+  userInfo: {
+    id: string;
+    username: string;
+    attributes: {
+      email: string;
+      email_verified: string;
+      sub: string;
+    };
+  } | null;
+}
+
+export const Home: NextPage<Props> = (props) => {
+  const { userInfo } = props;
+  const [isSignIn, setIsSignIn] = useState(!!userInfo);
+  const userName = userInfo ? userInfo.attributes.email : "";
+
+  type LoginFunction = (arg: LoginInfo) => Promise<void>;
+  const handleLogin: LoginFunction = async (props) => {
     try {
-      await Auth.signIn(email, password);
+      await Auth.signIn(props.email, props.password);
       setIsSignIn(true);
     } catch (error) {
       console.log(error.message);
     }
   };
+  type LogoutFunction = () => void;
+  const handleLogout: LogoutFunction = async () => {
+    await Auth.signOut();
+    setIsSignIn(false);
+  };
 
   const signInForm = (
-    <form onSubmit={handleLogin}>
-      <input type="text" value={email} onChange={handleChangeEmail} />
-      <input type="text" value={password} onChange={handleChangePassword} />
-      <button type="submit">ログイン</button>
-    </form>
+    <Formik onSubmit={handleLogin} initialValues={{ email: "", password: "" }}>
+      {(props: FormikProps<LoginInfo>) => {
+        const { handleSubmit, values, errors, handleChange } = props;
+        return (
+          <form onSubmit={handleSubmit}>
+            <TextField
+              placeholder="メールアドレス"
+              name="email"
+              value={values.email}
+              onChange={handleChange}
+            />
+            <TextField
+              placeholder="パスワード"
+              name="password"
+              value={values.password}
+              onChange={handleChange}
+            />
+            <ButtonMain
+              text="ログイン"
+              // type="submit"
+            ></ButtonMain>
+          </form>
+        );
+      }}
+    </Formik>
   );
 
   const menuList = (
-    <div className="">
-      <Link href="/todo">Todo</Link>
+    <div className="appItem">
+      <Link href="/todo">
+        <Item className="appItem">Todo</Item>
+      </Link>
+      <LogoutButton onClick={handleLogout}>ログアウト</LogoutButton>
     </div>
-  )
+  );
 
   return (
     <div>
@@ -63,3 +140,5 @@ export default function Home() {
     </div>
   );
 }
+
+export default Home;

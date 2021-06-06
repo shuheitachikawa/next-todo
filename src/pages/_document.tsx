@@ -8,13 +8,10 @@ interface Props {
 export default class MyDocument extends Document<Props> {
   static getInitialProps({ renderPage }: any) {
     const sheet = new ServerStyleSheet();
-
     const page = renderPage(
       (App: any) => (props: Props) => sheet.collectStyles(<App {...props} />)
     );
-
     const styleTags = sheet.getStyleElement();
-
     return { ...page, styleTags };
   }
 

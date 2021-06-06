@@ -2,10 +2,15 @@ import Link from "next/link";
 import styled from "styled-components";
 import { NextPage } from "next";
 
-import { withSSRContext } from "aws-amplify";
+import { withSSRContext, API } from "aws-amplify";
 import { listTodos } from "../../graphql/queries";
-import { Todo } from "../../API";
+import { createTodo } from "../../graphql/mutations";
+import { Todo, CreateTodoInput } from "../../API";
 import { GetServerSideProps } from "next";
+
+import { Formik, FormikProps } from "formik";
+import React from "react";
+// import * as Yup from "yup"; 一旦Formik内でバリデートしてみる
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { API } = withSSRContext(context);
@@ -17,17 +22,68 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
+const handleSubmitTodo = async (todo: CreateTodoInput): Promise<void> => {
+  console.log(todo);
+  await API.graphql({
+    query: createTodo,
+    variables: { input: todo },
+  });
+};
+
+interface Error {
+  name?: string;
+  description?: string;
+}
+const validate = (values: CreateTodoInput) => {
+  const error: Error = {};
+  if (!values.name) {
+    error.name = "Required";
+  }
+  return error;
+};
+
 interface Props {
   todos: Todo[];
 }
 
 const Todos: NextPage<Props> = (props) => {
+  const { todos } = props;
   const id = "aaa";
-  console.log(props.todos);
   return (
     <div className="">
-      {props.todos.map((p) => {
-        return <div className="">{p}</div>;
+      <div className="">
+        <Formik
+          onSubmit={handleSubmitTodo}
+          initialValues={{ name: "", description: "" }}
+          validate={validate}
+        >
+          {(props: FormikProps<CreateTodoInput>): React.ReactElement => {
+            const { handleSubmit, values, errors, handleChange } = props;
+            return (
+              <form onSubmit={handleSubmit}>
+                <input
+                  name="name"
+                  value={values.name}
+                  onChange={handleChange}
+                />
+                {/* <input
+                  name="description"
+                  value={values.description || ""}
+                  onChange={handleChange}
+                /> */}
+                <p>{errors.name}</p>
+                <button type="submit">追加</button>
+              </form>
+            );
+          }}
+        </Formik>
+      </div>
+      {todos.map((t) => {
+        return (
+          <div key={t.id} className="">
+            {t.id}
+          </div>
+        );
       })}
       <Link href={`/todo/${id}`}>ID</Link>
     </div>
