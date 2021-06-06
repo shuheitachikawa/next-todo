@@ -1,16 +1,16 @@
 import React from "react";
 import { ChangeEventHandler } from "react";
 import styled from "styled-components";
-import colors from "../const/colors";
+import Colors from "../const/Colors";
 
 interface ButtonProps {
   text: string;
   // type: string;
-  // onClick?: ChangeEventHandler<HTMLButtonElement>;
+  onClick?: ChangeEventHandler<HTMLButtonElement>;
 }
 
 const Button = styled.button`
-  background-color: ${colors.PRIMARY};
+  background-color: ${Colors.PRIMARY};
   display: block;
   border: none;
   padding: 12px;
@@ -22,9 +22,5 @@ const Button = styled.button`
 
 export const ButtonMain = (props: ButtonProps): JSX.Element => {
   const { text } = props;
-  return (
-    <Button>
-      {text}
-    </Button>
-  );
+  return <Button>{text}</Button>;
 };

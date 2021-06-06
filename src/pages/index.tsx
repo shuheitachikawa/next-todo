@@ -6,7 +6,7 @@ import { NextPage } from "next";
 //import styles from '../styles/Home.module.css'
 
 // const
-import Colors from "../const/colors";
+import Colors from "../const/Colors";
 
 // styled-components
 import styled from "styled-components";

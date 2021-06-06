@@ -18,7 +18,7 @@ import { Todo, CreateTodoInput, CreateTodoMutation } from "../../API";
 import { GetServerSideProps } from "next";
 
 // const
-import Colors from "../../const/colors";
+import Colors from "../../const/Colors";
 
 import { Formik, FormikProps } from "formik";
 // import * as Yup from "yup"; 一旦Formik内でバリデートしてみる

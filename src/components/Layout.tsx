@@ -1,10 +1,10 @@
 import React from "react";
 import type { ReactNode, FC } from "react";
 import styled from "styled-components";
-import Color from "../const/colors"
+import Colors from "../const/Colors";
 
 const Header = styled.header`
-  background-color: ${Color.PRIMARY};
+  background-color: ${Colors.PRIMARY};
 `;
 
 const HeaderContainer = styled.div`
@@ -17,7 +17,7 @@ const HeaderContainer = styled.div`
 const Container = styled.div`
   padding: 24px;
   max-width: 400px;
-`
+`;
 
 const HeaderTitle = styled.h1`
   font-size: 1rem;

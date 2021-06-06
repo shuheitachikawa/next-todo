@@ -1,6 +1,6 @@
 import { ChangeEventHandler } from "react";
 import styled from "styled-components";
-import colors from "../const/colors";
+import colors from "../const/Colors";
 
 interface TextFieldProps {
   name: string;
