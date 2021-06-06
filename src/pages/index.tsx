@@ -6,7 +6,7 @@ import { NextPage } from "next";
 //import styles from '../styles/Home.module.css'
 
 // const
-import Color from "../const/colors";
+import Colors from "../const/colors";
 
 // styled-components
 import styled from "styled-components";
@@ -38,7 +38,7 @@ export async function getServerSideProps(context: any) {
 }
 
 const Item = styled.div`
-  background-color: ${Color.PRIMARY};
+  background-color: ${Colors.PRIMARY};
   padding: 16px;
   margin-bottom: 16px;
   cursor: pointer;
@@ -46,7 +46,7 @@ const Item = styled.div`
 
 const LogoutButton = styled.button`
   display: block;
-  background-color: ${Color.PRIMARY};
+  background-color: ${Colors.PRIMARY};
   border: none;
   width: 100%;
   border-radius: 20px;
@@ -108,7 +108,7 @@ export const Home: NextPage<Props> = (props) => {
             <ButtonMain
               text="ログイン"
               // type="submit"
-            ></ButtonMain>
+            />
           </form>
         );
       }}
@@ -139,6 +139,6 @@ export const Home: NextPage<Props> = (props) => {
       </Layout>
     </div>
   );
-}
+};
 
 export default Home;

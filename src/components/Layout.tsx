@@ -11,10 +11,12 @@ const HeaderContainer = styled.div`
   display: flex;
   align-items: center;
   padding: 16px 24px;
+  max-width: 400px;
 `;
 
 const Container = styled.div`
   padding: 24px;
+  max-width: 400px;
 `
 
 const HeaderTitle = styled.h1`
