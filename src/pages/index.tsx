@@ -27,15 +27,15 @@ interface LoginInfo {
   password: string;
 }
 
-export async function getServerSideProps(context: any) {
-  const { Auth } = withSSRContext({ req: context.req });
-  const userInfo = await Auth.currentUserInfo();
-  return {
-    props: {
-      userInfo,
-    },
-  };
-}
+// export async function getServerSideProps(context: any) {
+//   const { Auth } = withSSRContext({ req: context.req });
+//   const userInfo = await Auth.currentUserInfo();
+//   return {
+//     props: {
+//       userInfo,
+//     },
+//   };
+// }
 
 const Item = styled.div`
   background-color: ${Colors.PRIMARY};

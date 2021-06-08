@@ -23,15 +23,15 @@ import Colors from "../../const/Colors";
 import { Formik, FormikProps } from "formik";
 // import * as Yup from "yup"; 一旦Formik内でバリデートしてみる
 
-// export const getServerSideProps: GetServerSideProps = async (context) => {
-//   const { API } = withSSRContext(context);
-//   const response = await API.graphql({ query: listTodos });
-//   return {
-//     props: {
-//       todos: response.data.listTodos.items,
-//     },
-//   };
-// };
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { API } = withSSRContext(context);
+  const response = await API.graphql({ query: listTodos });
+  return {
+    props: {
+      todos: response.data.listTodos.items,
+    },
+  };
+};
 
 const TodoCardContainer = styled.div`
   padding: 8px;
