@@ -23,17 +23,6 @@ const Item = styled.div`
   cursor: pointer;
 `;
 
-const LogoutButton = styled.button`
-  display: block;
-  background-color: ${Colors.PRIMARY};
-  border: none;
-  width: 100%;
-  border-radius: 20px;
-  padding: 8px 0;
-  font-weight: bold;
-  cursor: pointer;
-`;
-
 interface Props {
   userInfo: {
     id: string;
@@ -53,7 +42,6 @@ export const Home: NextPage = () => {
     Auth.currentUserInfo().then((res) => {
       if (res) {
         setLoggedIn(true);
-        console.log(loggedIn);
       }
     });
   }, []);
