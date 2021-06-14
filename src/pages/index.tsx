@@ -1,41 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { NextPage } from "next";
-// import Image from "next/image";
-//import styles from '../styles/Home.module.css'
-
-// const
-import Colors from "../const/Colors";
-
-// styled-components
+import Colors from "const/Colors";
 import styled from "styled-components";
-
-// components
-import { Layout } from "../components/Layout";
-import { TextField } from "../components/TextField";
-import { ButtonMain } from "../components/ButtonMain";
-
-// Amplify
+import { Layout } from "components/Layout";
+import { TextField } from "components/TextField";
+import { ButtonMain } from "components/ButtonMain";
 import { Auth, withSSRContext } from "aws-amplify";
-
-// Formik
 import { Formik, FormikProps } from "formik";
+// import useSWR from "swr";
 
 interface LoginInfo {
   email: string;
   password: string;
 }
-
-// export async function getServerSideProps(context: any) {
-//   const { Auth } = withSSRContext({ req: context.req });
-//   const userInfo = await Auth.currentUserInfo();
-//   return {
-//     props: {
-//       userInfo,
-//     },
-//   };
-// }
 
 const Item = styled.div`
   background-color: ${Colors.PRIMARY};
@@ -67,60 +46,101 @@ interface Props {
   } | null;
 }
 
-export const Home: NextPage<Props> = (props) => {
-  const { userInfo } = props;
-  const [isSignIn, setIsSignIn] = useState(!!userInfo);
-  const userName = userInfo ? userInfo.attributes.email : "";
+export const Home: NextPage = () => {
+  const [loggedIn, setLoggedIn] = useState(false);
 
-  type LoginFunction = (arg: LoginInfo) => Promise<void>;
-  const handleLogin: LoginFunction = async (props) => {
+  useEffect(() => {
+    Auth.currentUserInfo().then((res) => {
+      if (res) {
+        setLoggedIn(true);
+        console.log(loggedIn);
+      }
+    });
+  }, []);
+
+  interface Error {
+    emailRequired?: JSX.Element;
+    passwordRequired?: JSX.Element;
+  }
+  const validate = (values: LoginInfo) => {
+    const error: Error = {};
+    if (!values.email) {
+      error.emailRequired = (
+        <p className="text-xs text-red-400 mt-1">入力してください</p>
+      );
+    }
+    if (!values.password) {
+      error.passwordRequired = (
+        <p className="text-xs text-red-400 mt-1">入力してください</p>
+      );
+    }
+    return error;
+  };
+
+  const handleLogin = async (props: LoginInfo): Promise<void> => {
     try {
       await Auth.signIn(props.email, props.password);
-      setIsSignIn(true);
+      setLoggedIn(true);
     } catch (error) {
       console.log(error.message);
     }
   };
-  type LogoutFunction = () => void;
-  const handleLogout: LogoutFunction = async () => {
+
+  const handleLogout = async (): Promise<void> => {
     await Auth.signOut();
-    setIsSignIn(false);
+    setLoggedIn(false);
   };
 
   const signInForm = (
-    <Formik onSubmit={handleLogin} initialValues={{ email: "", password: "" }}>
+    <Formik
+      onSubmit={handleLogin}
+      initialValues={{ email: "", password: "" }}
+      validate={validate}
+    >
       {(props: FormikProps<LoginInfo>) => {
-        const { handleSubmit, values, errors, handleChange } = props;
+        const { handleSubmit, values, errors, isSubmitting, handleChange } =
+          props;
         return (
           <form onSubmit={handleSubmit}>
-            <TextField
-              placeholder="メールアドレス"
-              name="email"
-              value={values.email}
-              onChange={handleChange}
-            />
-            <TextField
-              placeholder="パスワード"
-              name="password"
-              value={values.password}
-              onChange={handleChange}
-            />
-            <ButtonMain
-              text="ログイン"
-              // type="submit"
-            />
+            <div className="mb-4">
+              <TextField
+                id={"email"}
+                type={"email"}
+                placeholder={"メールアドレス"}
+                value={values.email}
+                onChange={handleChange}
+                readOnly={isSubmitting}
+              />
+              {(errors as Error).emailRequired}
+            </div>
+            <div className="mb-6">
+              <TextField
+                id={"password"}
+                type={"password"}
+                placeholder={"パスワード"}
+                value={values.password}
+                onChange={handleChange}
+                readOnly={isSubmitting}
+              />
+              {(errors as Error).passwordRequired}
+            </div>
+            <div className="flex justify-end">
+              <ButtonMain isSubmitting={isSubmitting}>送信する</ButtonMain>
+            </div>
           </form>
         );
       }}
     </Formik>
   );
 
-  const menuList = (
+  const mainMenu = (
     <div className="appItem">
       <Link href="/todo">
         <Item className="appItem">Todo</Item>
       </Link>
-      <LogoutButton onClick={handleLogout}>ログアウト</LogoutButton>
+      <form onSubmit={handleLogout}>
+        <ButtonMain isSubmitting={false}>ログアウト</ButtonMain>
+      </form>
     </div>
   );
 
@@ -131,11 +151,8 @@ export const Home: NextPage<Props> = (props) => {
         <meta name="description" content="Generated by create next app" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Layout userName={userName}>
-        <main>
-          {!isSignIn && signInForm}
-          {isSignIn && menuList}
-        </main>
+      <Layout>
+        <main>{loggedIn ? mainMenu : signInForm}</main>
       </Layout>
     </div>
   );

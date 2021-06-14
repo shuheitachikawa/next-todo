@@ -1,35 +1,24 @@
 import { ChangeEventHandler } from "react";
-import styled from "styled-components";
-import colors from "../const/Colors";
-
 interface TextFieldProps {
-  name: string;
-  value: string | number;
-  placeholder?: string;
+  id: string;
+  type: string;
+  placeholder: string;
+  value: string;
+  readOnly: boolean
   onChange: ChangeEventHandler<HTMLInputElement>;
 }
 
-const TextFieldInput = styled.input`
-  background-color: ${colors.PRIMARY};
-  display: block;
-  border: none;
-  padding: 12px;
-  border-radius: 12px;
-  width: 100%;
-  margin-bottom: 16px;
-  :focus {
-    outline: none;
-  }
-`;
 
 export const TextField = (props: TextFieldProps) => {
-  const { name, value, placeholder, onChange } = props;
   return (
-    <TextFieldInput
-      name={name}
-      value={value}
-      placeholder={placeholder}
-      onChange={onChange}
+    <input
+      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      id={props.id}
+      type={props.type}
+      placeholder={props.placeholder}
+      value={props.value}
+      onChange={props.onChange}
+      readOnly={props.readOnly}
     />
   );
 };

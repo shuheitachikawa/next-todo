@@ -1,45 +1,20 @@
 import React from "react";
 import type { ReactNode, FC } from "react";
-import styled from "styled-components";
-import Colors from "../const/Colors";
-
-const Header = styled.header`
-  background-color: ${Colors.PRIMARY};
-`;
-
-const HeaderContainer = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 16px 24px;
-  max-width: 400px;
-`;
-
-const Container = styled.div`
-  padding: 24px;
-  max-width: 400px;
-`;
-
-const HeaderTitle = styled.h1`
-  font-size: 1rem;
-  margin: 0;
-  margin-right: 24px;
-`;
+import Link from "next/link";
 
 interface Props {
-  userName: string;
   children: ReactNode;
 }
 
 export const Layout: FC<Props> = (props) => {
   return (
     <div className="">
-      <Header>
-        <HeaderContainer className="container">
-          <HeaderTitle className="h1">MyApp</HeaderTitle>
-          <div className="">{props.userName}</div>
-        </HeaderContainer>
-      </Header>
-      <Container className="">{props.children}</Container>
+      <header>
+        <Link href={"/"}>
+          <h1 className="text-lg px-4 py-5 inline-block cursor-pointer">MyApp</h1>
+        </Link>
+      </header>
+      <div className="px-4 max-w-sm">{props.children}</div>
     </div>
   );
 };

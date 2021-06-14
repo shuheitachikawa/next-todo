@@ -1,59 +1,16 @@
-import React, { useState } from "react";
-import Link from "next/link";
+import React, { useState, useEffect, useReducer } from "react";
 import { NextPage } from "next";
-
-// components
+import Link from "next/link";
 import { Layout } from "../../components/Layout";
 import { TextField } from "../../components/TextField";
 import { ButtonMain } from "../../components/ButtonMain";
-
-// styled-components
 import styled from "styled-components";
-
-// Amplify
 import { withSSRContext, API } from "aws-amplify";
 import { listTodos } from "../../graphql/queries";
 import { createTodo, deleteTodo } from "../../graphql/mutations";
-import { Todo, CreateTodoInput, CreateTodoMutation } from "../../API";
-import { GetServerSideProps } from "next";
-
-// const
+import { Todo, CreateTodoInput, ListTodosQuery } from "../../API";
 import Colors from "../../const/Colors";
-
 import { Formik, FormikProps } from "formik";
-// import * as Yup from "yup"; 一旦Formik内でバリデートしてみる
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { API } = withSSRContext(context);
-  const response = await API.graphql({ query: listTodos });
-  return {
-    props: {
-      todos: response.data.listTodos.items,
-    },
-  };
-};
-
-const TodoCardContainer = styled.div`
-  padding: 8px;
-  background-color: ${Colors.BG_GREY};
-  border-radius: 4px;
-`;
-const TodoCard = styled.div`
-  background-color: ${Colors.PRIMARY};
-  padding: 8px;
-  margin-bottom: 8px;
-  border-radius: 8px;
-  position: relative;
-`;
-const DeleteButton = styled.button`
-  background-color: #fff;
-  border: none;
-  position: absolute;
-  top: 50%;
-  right: 4px;
-  transform: translateY(-50%);
-  border-radius: 50%;
-`;
 
 interface Error {
   name?: string;
@@ -67,12 +24,42 @@ const validate = (values: CreateTodoInput) => {
   return error;
 };
 
-interface Props {
+interface State {
   todos: Todo[];
 }
-const Todos: NextPage<Props> = (props) => {
-  const [todos, setTodos] = useState(props.todos);
-  const id = "aaa";
+interface ActionType {
+  type: "QUERY" | "SUBSCRIPTION";
+  todos: Todo[];
+}
+const reducer = (state: State, action: ActionType) => {
+  switch (action.type) {
+    case "QUERY":
+      return { ...state, todos: action.todos };
+    default:
+      return state;
+  }
+};
+
+const initialState = {
+  todos: [],
+};
+const Todos: NextPage = () => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  // useEffectはclean up関数をreturnするため、asyncにするとPromiseをreturnなのでNG
+  useEffect(() => {
+    const fetchTodos = async () => {
+      const { data }: any = await API.graphql({
+        query: listTodos,
+      });
+      const sortedItems = data.listTodos.items.sort((a: any, b: any) => {
+        a.createdAt - b.createdAt;
+      });
+      dispatch({ type: "QUERY", todos: sortedItems });
+    };
+    fetchTodos();
+    return () => {};
+  }, []);
 
   const handleSubmitTodo = async (
     todo: CreateTodoInput,
@@ -83,28 +70,32 @@ const Todos: NextPage<Props> = (props) => {
         query: createTodo,
         variables: { input: todo },
       });
-      const newTodo = data.createTodo;
-      setTodos([...todos, newTodo]);
+      const newTodo: Todo = data.createTodo;
+      dispatch({ type: "QUERY", todos: [newTodo, ...state.todos] });
       resetForm();
       setStatus({ success: true });
     } catch (e) {
       console.log(e);
       setStatus({ success: false });
-      setSubmitting(false);
-      // setErrors({ submit: error.message });
     }
+    setSubmitting(false);
   };
-  const handleDeleteTodo = async (id: string | undefined): Promise<void> => {
+  const handleDeleteTodo = async (
+    e: React.FormEvent,
+    id: string | undefined
+  ): Promise<void> => {
+    e.preventDefault();
     await API.graphql({
       query: deleteTodo,
       variables: { input: { id } },
     });
-    setTodos(todos.filter((t) => t.id !== id));
+    const newTodos = state.todos.filter((t: Todo) => t.id !== id);
+    dispatch({ type: "QUERY", todos: newTodos });
   };
 
   return (
     <div className="">
-      <Layout userName="aaa">
+      <Layout>
         <div className="">
           <Formik
             onSubmit={handleSubmitTodo}
@@ -112,41 +103,50 @@ const Todos: NextPage<Props> = (props) => {
             validate={validate}
           >
             {(props: FormikProps<CreateTodoInput>): React.ReactElement => {
-              const { handleSubmit, values, errors, handleChange, status } =
-                props;
+              const {
+                handleSubmit,
+                values,
+                errors,
+                isSubmitting,
+                handleChange,
+                status,
+              } = props;
               return (
                 <form onSubmit={handleSubmit}>
-                  <TextField
-                    name="name"
-                    value={values.name}
-                    onChange={handleChange}
-                  />
-                  {/* <input
-                  name="description"
-                  value={values.description || ""}
-                  onChange={handleChange}
-                /> */}
+                  <div className="flex justify-between mb-5">
+                    <TextField
+                      id={"name"}
+                      type={"text"}
+                      placeholder={"TODO"}
+                      value={values.name}
+                      onChange={handleChange}
+                      readOnly={isSubmitting}
+                    />
+                    <div className="ml-2">
+                      <ButtonMain isSubmitting={isSubmitting}>ADD</ButtonMain>
+                    </div>
+                  </div>
                   <p>{errors.name}</p>
-                  <ButtonMain text="追加" />
                 </form>
               );
             }}
           </Formik>
-          <TodoCardContainer>
-            {todos.map((t) => {
-              return (
-                <TodoCard key={t.id}>
-                  <div className="">{t.name}</div>
-                  <DeleteButton
-                    type="button"
-                    onClick={() => handleDeleteTodo(t.id)}
+          <ul>
+            {state.todos &&
+              state.todos.map((t: Todo) => {
+                return (
+                  <li
+                    key={t.id}
+                    className="flex justify-between py-2 px-2 bg-indigo-100 mb-2 items-center rounded-lg shadow-sm"
                   >
-                    X
-                  </DeleteButton>
-                </TodoCard>
-              );
-            })}
-          </TodoCardContainer>
+                    <div className="">{t.name}</div>
+                    <form onSubmit={(e) => handleDeleteTodo(e, t.id)}>
+                      <ButtonMain isSubmitting={false}>✗</ButtonMain>
+                    </form>
+                  </li>
+                );
+              })}
+          </ul>
         </div>
       </Layout>
     </div>
