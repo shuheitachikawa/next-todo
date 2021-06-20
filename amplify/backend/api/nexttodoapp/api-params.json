@@ -1,0 +1,35 @@
+{
+  "paths": [
+    {
+      "name": "/",
+      "lambdaFunction": "LineBotTest",
+      "privacy": {
+        "open": true
+      },
+      "policyResourceName": "/"
+    }
+  ],
+  "resourceName": "nexttodoapp",
+  "apiName": "nexttodoapp",
+  "functionArns": [
+    {
+      "lambdaFunction": "LineBotTest"
+    }
+  ],
+  "privacy": {
+    "auth": 0,
+    "unauth": 0,
+    "authRoleName": "amplify-nexttodo-dev-130051-authRole",
+    "unAuthRoleName": "amplify-nexttodo-dev-130051-unauthRole"
+  },
+  "dependsOn": [
+    {
+      "category": "function",
+      "resourceName": "LineBotTest",
+      "attributes": [
+        "Name",
+        "Arn"
+      ]
+    }
+  ]
+}

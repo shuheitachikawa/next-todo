@@ -14,6 +14,12 @@
     "categories": {
       "auth": {
         "nexttodob6edbbd5": {}
+      },
+      "function": {
+        "LineBotTest": {
+          "deploymentBucketName": "amplify-nexttodo-dev-130051-deployment",
+          "s3Key": "amplify-builds/LineBotTest-733271653159534a4466-build.zip"
+        }
       }
     }
   }
